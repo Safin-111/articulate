@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Articulate</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f6e64">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f5f2ec;--card:#fffdf9;--ink:#1c2220;--muted:#5d6662;--line:#e3ddd2;
+  --accent:#0f6e64;--accent-ink:#fff;--soft:#e4efec;--bad:#b4462a;--bad-soft:#f8e4dc;--good:#2f7d4a;
+  --r:16px;--shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#121615;--card:#1b201f;--ink:#e9eeec;--muted:#98a39e;--line:#2b3331;
+  --accent:#4cc1b0;--accent-ink:#0a1412;--soft:#1d2c29;--bad:#ff8a6a;--bad-soft:#3a221b;--good:#74c98f;
+  --shadow:none;
+}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+header.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));background:var(--bg);border-bottom:1px solid var(--line)}
+header h1{font-size:19px;margin:0;flex:1;letter-spacing:-.01em}
+.icon-btn{border:0;background:none;color:var(--ink);font-size:28px;line-height:1;padding:0 6px;cursor:pointer}
+.chip{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--soft);color:var(--accent);max-width:45vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+main{max-width:680px;margin:0 auto;padding:16px}
+nav.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav.tabs button{flex:1;border:0;background:none;color:var(--muted);padding:10px 0 12px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav.tabs button span{font-size:20px;line-height:1.1}
+nav.tabs button.on{color:var(--accent);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+h2{font-size:17px;margin:0 0 8px}
+h3{font-size:14px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+p{margin:0 0 10px}
+.muted{color:var(--muted);font-size:14px}
+.small{font-size:13px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 14px;font:inherit;font-size:15px;cursor:pointer;min-height:44px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.55;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row .grow{flex:1}
+textarea,input[type=text],input[type=password],select{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+textarea{min-height:120px;resize:vertical}
+label.lbl{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{border:0;background:var(--card);color:var(--ink);padding:8px 12px;font:inherit;font-size:14px;cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);cursor:pointer}
+.tile b{display:block;font-size:15px;margin:4px 0 2px}
+.tile .ico{font-size:22px}
+.tile.wide{grid-column:1/-1}
+.stat{display:flex;gap:18px}
+.stat div b{display:block;font-size:24px;line-height:1.1}
+.banner{background:var(--bad-soft);border:1px solid var(--bad);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;font-size:14px}
+.big{font-size:22px;line-height:1.45;font-weight:500}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--soft);color:var(--accent);margin-right:4px}
+.timer{font-size:52px;font-weight:700;font-variant-numeric:tabular-nums;text-align:center;margin:6px 0}
+.steps{list-style:none;padding:0;margin:0}
+.steps li{padding:10px 12px;border-radius:12px;margin-bottom:6px;border:1px solid transparent}
+.steps li.cur{border-color:var(--accent);background:var(--soft)}
+.steps li.done{opacity:.55}
+.dots{display:flex;gap:8px}
+.dots i{width:22px;height:22px;border-radius:50%;border:2px solid var(--accent);cursor:pointer}
+.dots i.on{background:var(--accent)}
+.rec-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rec-btn.live{background:var(--bad);border-color:var(--bad);color:#fff}
+.rec-time{font-variant-numeric:tabular-nums;font-weight:600}
+video.preview,video.play{width:100%;max-height:320px;border-radius:12px;background:#000;margin-top:10px}
+video.preview{transform:scaleX(-1)}
+audio{width:100%;margin-top:10px}
+.scores{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
+.score{background:var(--soft);border-radius:12px;padding:8px 10px;min-width:72px;text-align:center}
+.score b{display:block;font-size:20px}
+.score span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.score.warn{background:var(--bad-soft)}
+.transcript{line-height:1.8;font-size:15px}
+.transcript mark{background:var(--bad);color:#fff;border-radius:4px;padding:0 4px;font-weight:700}
+.transcript .gp{color:var(--accent);font-weight:700;padding:0 2px}
+ul.plain{margin:0;padding-left:20px}
+ul.plain li{margin-bottom:4px}
+.chat{margin-top:10px}
+.msg{padding:9px 12px;border-radius:14px;margin:6px 0;max-width:88%;white-space:pre-wrap;font-size:15px}
+.msg.me{background:var(--accent);color:var(--accent-ink);margin-left:auto;border-bottom-right-radius:4px}
+.msg.coach{background:var(--soft);border-bottom-left-radius:4px}
+.chunks{line-height:2;font-size:17px}
+.chunks .sl{color:var(--accent);font-weight:700;margin:0 6px}
+.chunks b{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.sec-title{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 2px}
+.prompter{background:#0e1312;color:#f1f5f3;border-radius:var(--r);padding:22px 18px;min-height:260px;display:flex;flex-direction:column;justify-content:center;gap:14px;cursor:pointer;user-select:none}
+.prompter .p-sec{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#7fd6c8}
+.prompter .p-prev{font-size:16px;color:#6c7a76}
+.prompter .p-cur{font-size:30px;line-height:1.3;font-weight:600}
+.prompter .p-cur b{color:#7fd6c8}
+.prompter .p-next{font-size:18px;color:#93a39e}
+.progress{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:10px}
+.progress i{display:block;height:100%;background:var(--accent);width:0}
+.hist{cursor:pointer}
+.hist .meta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted)}
+details summary{cursor:pointer;color:var(--accent);font-size:14px}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#toast.show{opacity:1}
+#toast.err{background:var(--bad);color:#fff}
+.spacer{height:6px}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header class="top">
+  <button id="backBtn" class="icon-btn" aria-label="Back" hidden>‹</button>
+  <h1 id="title">Articulate</h1>
+  <span id="topicChip" class="chip" hidden></span>
+</header>
+<main id="view"></main>
+<nav class="tabs">
+  <button data-go="home"><span>⌂</span>Home</button>
+  <button data-go="script"><span>¶</span>Script</button>
+  <button data-go="viva"><span>?</span>Viva</button>
+  <button data-go="history"><span>☰</span>Feedback</button>
+  <button data-go="settings"><span>⚙</span>Settings</button>
+</nav>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ---------- small helpers ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('art.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('art.' + k, JSON.stringify(v)); } catch (e) { toast('Could not save (storage full?)', true); } }
+};
+let cleanupFns = [];
+const onCleanup = fn => cleanupFns.push(fn);
+function toast(msg, err) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'show' + (err ? ' err' : '');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.className = '', err ? 5000 : 2600);
+}
+function beep(freq = 880) {
+  try { const c = new (window.AudioContext || window.webkitAudioContext)(); const o = c.createOscillator(), g = c.createGain();
+    o.frequency.value = freq; g.gain.value = 0.08; o.connect(g); g.connect(c.destination); o.start();
+    setTimeout(() => { o.stop(); c.close(); }, 170); } catch (e) {}
+}
+/* Read text aloud with the phone's built-in voice (free, no API) */
+function speak(text, rate = 0.9) {
+  if (!('speechSynthesis' in window)) { toast('This browser has no built-in voice', true); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text); const lang = store.get('voice', 'en-GB');
+  u.lang = lang; u.rate = rate;
+  const v = speechSynthesis.getVoices().find(v => v.lang.replace('_', '-') === lang); if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+/* Tiny formatter: ## headings, - bullets, **bold** */
+function md(t) {
+  const out = []; let inList = false;
+  esc(t).split('\n').forEach(line => {
+    const l = line.trim().replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    if (/^- /.test(l) || /^\* /.test(l)) { if (!inList) { out.push('<ul class="plain">'); inList = true; } out.push('<li>' + l.slice(2) + '</li>'); return; }
+    if (inList) { out.push('</ul>'); inList = false; }
+    if (/^#{1,3} /.test(l)) out.push('<h3>' + l.replace(/^#+ /, '') + '</h3>');
+    else if (l) out.push('<p>' + l + '</p>');
+  });
+  if (inList) out.push('</ul>');
+  return out.join('');
+}
+function sectionOf(t, name) {
+  const m = t.split(/\n(?=#{1,3} )/).find(s => s.replace(/^#+ /, '').toLowerCase().startsWith(name.toLowerCase()));
+  return m ? m.replace(/^#+ [^\n]*\n/, '').trim() : '';
+}
+const fmt = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const wordCount = t => (t || '').split(/\s+/).filter(w => /[A-Za-z0-9]/.test(w)).length;
+
+function markPractice() {
+  const days = store.get('days', []); const t = today();
+  if (!days.includes(t)) { days.push(t); store.set('days', days.slice(-400)); }
+}
+function streak() {
+  const days = new Set(store.get('days', [])); let n = 0; const d = new Date();
+  if (!days.has(today())) d.setDate(d.getDate() - 1);
+  while (true) {
+    const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    if (days.has(k)) { n++; d.setDate(d.getDate() - 1); } else break;
+  }
+  return n;
+}
+
+/* ---------- topics (course material) ---------- */
+const topics = () => store.get('topics', []);
+const activeTopic = () => topics().find(t => t.id === store.get('activeTopic', null)) || null;
+function topicContext() {
+  const t = activeTopic(); if (!t) return '';
+  return `Course topic: ${t.name}\nStudent's own notes on it (use as the source material; they may be partial):\n"""${(t.notes || '').slice(0, 15000)}"""\n`;
+}
+function needTopic() {
+  if (activeTopic()) return true;
+  toast('Pick or add a course topic first'); location.hash = '#topics'; return false;
+}
+
+/* ---------- Gemini ---------- */
+const COACH_SYSTEM = `You are an experienced public-speaking and articulation coach working with a graduate economics student in Bangladesh who speaks English as a second language. His goals: speak with clarity, deliver presentations well, and handle viva and thesis-defence questions. His main habit to fix: stopping in the middle of phrases to gather his thoughts. Be warm but direct. Be specific: quote his exact words. Never invent anything that is not in the audio. If the audio is silent, too short or unclear, say so plainly.`;
+
+async function gemini(parts, opts = {}) {
+  const key = (store.get('apiKey', '') || '').trim();
+  if (!key) { toast('Add your free Gemini API key in Settings first', true); location.hash = '#settings'; throw new Error('nokey'); }
+  const model = (store.get('model', 'gemini-flash-latest') || 'gemini-flash-latest').trim();
+  const body = { contents: [{ role: 'user', parts }], generationConfig: { temperature: opts.temperature ?? 0.6 } };
+  if (opts.tools) { body.tools = opts.tools; opts.json = false; }
+  if (opts.json !== false) body.generationConfig.responseMimeType = 'application/json';
+  if (opts.system) body.systemInstruction = { parts: [{ text: opts.system }] };
+  let res;
+  try {
+    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key }, body: JSON.stringify(body) });
+  } catch (e) { throw new Error('Network error. Check your internet connection.'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data?.error?.message || res.statusText;
+    if (res.status === 429) throw new Error('Free-tier limit reached for now. Wait a minute (or until tomorrow if it is the daily cap) and try again.');
+    if (res.status === 400 && /api key/i.test(msg)) throw new Error('Gemini rejected the API key. Check it in Settings.');
+    if (res.status === 403) throw new Error('Gemini refused the key (403). Make sure it is a Gemini API key from AI Studio.');
+    if (res.status === 404) throw new Error(`Model "${model}" was not found. Change the model name in Settings.`);
+    throw new Error('Gemini error: ' + msg);
+  }
+  const text = (data.candidates?.[0]?.content?.parts || []).filter(p => p.text && !p.thought).map(p => p.text).join('');
+  if (!text) throw new Error('Gemini sent an empty reply' + (data.promptFeedback?.blockReason ? ' (' + data.promptFeedback.blockReason + ')' : '') + '. Try again.');
+  if (opts.tools) {
+    const c = data.candidates?.[0] || {}; const seen = new Set(); const sources = [];
+    ((c.groundingMetadata || c.grounding_metadata)?.groundingChunks || []).forEach(g => { const w = g.web || {}; if (w.uri && !seen.has(w.uri)) { seen.add(w.uri); sources.push({ uri: w.uri, title: w.title || w.uri }); } });
+    ((c.urlContextMetadata || c.url_context_metadata)?.urlMetadata || []).forEach(u => { const uri = u.retrievedUrl || u.retrieved_url; if (uri && !seen.has(uri)) { seen.add(uri); sources.push({ uri, title: uri, status: u.urlRetrievalStatus || u.url_retrieval_status }); } });
+    return { text: text.trim(), sources };
+  }
+  if (opts.json === false) return text.trim();
+  try { return JSON.parse(text); } catch (e) {
+    const m = text.match(/[\[{][\s\S]*[\]}]/); if (m) { try { return JSON.parse(m[0]); } catch (e2) {} }
+    throw new Error("Could not read Gemini's reply. Try again.");
+  }
+}
+async function busy(btn, label, fn) {
+  const old = btn.textContent; btn.disabled = true; btn.textContent = label;
+  try { return await fn(); }
+  catch (e) { if (e.message !== 'nokey') toast(e.message, true); }
+  finally { if (btn.isConnected) { btn.disabled = false; btn.textContent = old; } }
+}
+
+/* ---------- audio: convert recording to small 16 kHz mono WAV for Gemini ---------- */
+async function wavBase64(blob) {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AC(); const decoded = await ctx.decodeAudioData(await blob.arrayBuffer()); ctx.close();
+  const rate = 16000, len = Math.max(1, Math.ceil(decoded.duration * rate));
+  const off = new OfflineAudioContext(1, len, rate); const src = off.createBufferSource();
+  src.buffer = decoded; src.connect(off.destination); src.start();
+  const pcm = (await off.startRendering()).getChannelData(0);
+  const buf = new ArrayBuffer(44 + pcm.length * 2), v = new DataView(buf);
+  const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, pcm.length * 2, true);
+  for (let i = 0; i < pcm.length; i++) { const s = Math.max(-1, Math.min(1, pcm[i])); v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true); }
+  const url = await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = bad; r.readAsDataURL(new Blob([buf], { type: 'audio/wav' })); });
+  return url.slice(url.indexOf(',') + 1);
+}
+
+/* ---------- feedback ---------- */
+const MODE_LABEL = { twister: 'Tongue twister', read: 'Read-aloud', script: 'Scripted presentation', viva: 'Viva answer' };
+function feedbackPrompt(ctx, dur) {
+  const content = {
+    twister: 'which sounds or words were unclear or rushed (name them) and whether he kept the same clarity at speed',
+    read: 'accuracy against the text: skipped, added or misread words, mispronounced or wrongly stressed technical terms',
+    script: 'accuracy against the script (skipped or changed parts), and whether the narrative was easy for an audience to follow',
+    viva: 'whether the answer is correct, complete and well-structured as economics, judged as a viva examiner would, and what a top answer would add'
+  }[ctx.mode];
+  return `Analyse this recording of a ${MODE_LABEL[ctx.mode]} practice. It lasted about ${Math.round(dur)} seconds.
+${ctx.expected ? 'He was delivering this text:\n"""' + ctx.expected.slice(0, 8000) + '"""\n' : ''}${ctx.question ? 'The examiner question was: "' + ctx.question + '"\n' : ''}${ctx.mode === 'viva' ? topicContext() : ''}
+Return JSON with exactly these keys:
+"transcript": verbatim transcript including fillers (um, uh, like, so, basically, you know) and restarts. Insert [•] wherever he paused between thought groups (a natural pause that helps the listener) and [✗] wherever he paused, hesitated or restarted in the middle of a phrase, breaking its meaning.
+"mid_phrase_pauses": array of objects {"quote": "the few words around the break, with [✗] where it happened", "fix": "where the pause should have gone instead"}. Empty array if none.
+"fillers": {"count": integer, "list": array of the filler words heard}
+"scores": {"clarity": 1-10, "pace": 1-10, "structure": 1-10, "fluency": 1-10}
+"strengths": array of 2 short, specific points
+"fixes": array of the 3 most important fixes, each specific and actionable, quoting his words
+"content": 2-3 sentences on ${content}
+"next_drill": one concrete exercise to do tomorrow
+Scoring guide: fluency 10 means every pause falls between thought groups; deduct for each [✗], filler and restart. Pace: about 130-160 words per minute suits presentations; judge whether pauses were long enough to let ideas land. Clarity covers articulation and pronunciation of each word.`;
+}
+async function analyse(blob, dur, ctx) {
+  const b64 = await wavBase64(blob);
+  const r = await gemini([{ text: feedbackPrompt(ctx, dur) }, { inlineData: { mimeType: 'audio/wav', data: b64 } }], { temperature: 0.3, system: COACH_SYSTEM });
+  const words = wordCount(String(r.transcript || '').replace(/\[[^\]]*\]/g, ' '));
+  r.duration = Math.round(dur);
+  r.wpm = dur > 4 ? Math.round(words / (dur / 60)) : null;
+  const entry = { id: Date.now().toString(36), at: Date.now(), mode: ctx.mode, title: ctx.title || MODE_LABEL[ctx.mode], topic: activeTopic()?.name || '', result: r, chat: [] };
+  saveEntry(entry); markPractice();
+  return entry;
+}
+function saveEntry(e) {
+  const h = store.get('history', []); const i = h.findIndex(x => x.id === e.id);
+  if (i >= 0) h[i] = e; else h.unshift(e);
+  store.set('history', h.slice(0, 60));
+}
+const midCount = r => (Array.isArray(r.mid_phrase_pauses) ? r.mid_phrase_pauses.length : (String(r.transcript || '').match(/\[✗\]/g) || []).length);
+function paceNote(wpm) { if (!wpm) return ''; if (wpm < 115) return 'slow'; if (wpm > 170) return 'fast'; return 'good'; }
+
+function renderFeedback(host, entry) {
+  const r = entry.result || {}; const s = r.scores || {}; const mc = midCount(r); const fc = r.fillers?.count ?? 0;
+  const list = a => Array.isArray(a) && a.length ? '<ul class="plain">' + a.map(x => '<li>' + esc(typeof x === 'string' ? x : JSON.stringify(x)) + '</li>').join('') + '</ul>' : '<p class="muted">—</p>';
+  const tr = esc(r.transcript || '').replace(/\[✗\]/g, '<mark>✗</mark>').replace(/\[•\]/g, '<span class="gp">/</span>');
+  host.innerHTML = `<div class="card">
+    <h2>Coach feedback</h2>
+    <div class="scores">
+      ${['clarity', 'pace', 'structure', 'fluency'].map(k => `<div class="score"><b>${esc(s[k] ?? '–')}</b><span>${k}</span></div>`).join('')}
+      <div class="score ${paceNote(r.wpm) !== 'good' && r.wpm ? 'warn' : ''}"><b>${r.wpm ?? '–'}</b><span>wpm ${paceNote(r.wpm)}</span></div>
+      <div class="score ${mc ? 'warn' : ''}"><b>${mc}</b><span>mid-phrase</span></div>
+      <div class="score ${fc > 3 ? 'warn' : ''}"><b>${fc}</b><span>fillers</span></div>
+    </div>
+    <h3>Top fixes</h3>${list(r.fixes)}
+    ${mc ? '<h3>Mid-phrase stops</h3><ul class="plain">' + (r.mid_phrase_pauses || []).map(p => `<li class="transcript">“${esc(p.quote).replace(/\[✗\]/g, '<mark>✗</mark>')}” → ${esc(p.fix)}</li>`).join('') + '</ul>' : ''}
+    <h3>Strengths</h3>${list(r.strengths)}
+    <h3>Content</h3><p>${esc(r.content || '—')}</p>
+    <h3>Tomorrow's drill</h3><p>${esc(r.next_drill || '—')}</p>
+    <details><summary>Transcript (<span class="gp" style="color:var(--accent)">/</span> good pause, <mark style="background:var(--bad);color:#fff;border-radius:4px;padding:0 4px">✗</mark> mid-phrase stop)</summary><p class="transcript">${tr}</p></details>
+    ${CHAT_HTML}
+  </div>`;
+  attachChat(host, entry, { activity: entry.title, scores: r.scores, wpm: r.wpm, fixes: r.fixes, mid_phrase_pauses: r.mid_phrase_pauses, transcript: r.transcript, content: r.content }, 'practice recording');
+}
+const CHAT_HTML = `<h3>Ask the coach</h3><div class="chat"></div>
+  <div class="row"><input type="text" class="grow chat-in" placeholder="Ask about this feedback…"><button class="btn primary chat-send">Send</button></div>`;
+function attachChat(host, entry, slim, what) {
+  const chat = $('.chat', host);
+  const drawChat = () => { chat.innerHTML = entry.chat.map(m => `<div class="msg ${m.role === 'me' ? 'me' : 'coach'}">${esc(m.text)}</div>`).join(''); };
+  drawChat();
+  const send = () => {
+    const inp = $('.chat-in', host); const q = inp.value.trim(); if (!q) return;
+    entry.chat.push({ role: 'me', text: q }); inp.value = ''; drawChat(); saveEntry(entry);
+    busy($('.chat-send', host), '…', async () => {
+      const reply = await gemini([{ text: `Your feedback on this ${what} was (JSON): ${JSON.stringify(slim)}\n\nConversation so far:\n${entry.chat.map(m => (m.role === 'me' ? 'Student: ' : 'Coach: ') + m.text).join('\n')}\n\nReply to the student's last message in under 130 words of plain text (no markdown). Be practical and specific.` }], { json: false, system: COACH_SYSTEM });
+      entry.chat.push({ role: 'coach', text: reply }); saveEntry(entry); drawChat();
+    });
+  };
+  $('.chat-send', host).onclick = send;
+  $('.chat-in', host).onkeydown = e => { if (e.key === 'Enter') send(); };
+}
+
+/* ---------- writing feedback ---------- */
+function renderWriting(host, entry) {
+  const r = entry.result || {}; const s = r.scores || {};
+  host.innerHTML = `<div class="card"><h2>Writing feedback</h2>
+    <div class="scores">${['clarity', 'structure', 'concision', 'accuracy', 'grammar'].map(k => `<div class="score ${(s[k] ?? 10) < 6 ? 'warn' : ''}"><b>${esc(s[k] ?? '–')}</b><span>${k}</span></div>`).join('')}</div>
+    <p><b>${esc(r.summary || '')}</b></p>
+    <h3>Fix these</h3>${(r.issues || []).length ? '<ul class="plain">' + r.issues.map(i => `<li><s>${esc(i.original)}</s> → <b>${esc(i.better)}</b><br><span class="muted small">${esc(i.why)}</span></li>`).join('') + '</ul>' : '<p class="muted">No major issues.</p>'}
+    <h3>Strengths</h3><ul class="plain">${(r.strengths || []).map(x => '<li>' + esc(x) + '</li>').join('')}</ul>
+    <h3>Would it work spoken aloud?</h3><p>${esc(r.speakability || '—')}</p>
+    <details><summary>Improved version</summary><p style="margin-top:8px;white-space:pre-wrap">${esc(r.improved || '')}</p>
+      <div class="row"><button class="btn w-script">Practise it in Script Studio</button><button class="btn w-hear">🔊 Hear it</button></div></details>
+    <details><summary>What you wrote</summary><p style="margin-top:8px;white-space:pre-wrap" class="small">${esc(entry.text || '')}</p></details>
+    ${CHAT_HTML}</div>`;
+  $('.w-script', host).onclick = () => { store.set('script', r.improved || entry.text || ''); location.hash = '#script'; };
+  $('.w-hear', host).onclick = () => speak(r.improved || '');
+  attachChat(host, entry, { task: entry.task, text: entry.text, scores: r.scores, issues: r.issues, summary: r.summary }, 'piece of writing');
+}
+
+/* ---------- recorder (audio, optional camera) ---------- */
+function mountRecorder(host, ctxFn, hooks = {}) {
+  host.innerHTML = `<div class="card">
+    <div class="rec-row">
+      <button class="btn primary rec-btn">● Record</button>
+      <span class="rec-time">0:00</span>
+      <label class="small muted"><input type="checkbox" class="cam" ${store.get('camera', false) ? 'checked' : ''}> camera</label>
+    </div>
+    <video class="preview" playsinline muted hidden></video>
+    <div class="out"></div>
+  </div><div class="fb"></div>`;
+  const btn = $('.rec-btn', host), time = $('.rec-time', host), prev = $('.preview', host), out = $('.out', host), fb = $('.fb', host);
+  let stream = null, recs = [], startT = 0, tick = null, live = false;
+  const MAX = 300;
+  const pick = types => types.find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || '';
+  function stopTracks() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; prev.hidden = true; prev.srcObject = null; }
+  async function start() {
+    const cam = $('.cam', host).checked;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: cam ? { facingMode: 'user', width: { ideal: 720 } } : false }); }
+    catch (e) { toast('Microphone' + (cam ? '/camera' : '') + ' permission was blocked. Allow it in Chrome site settings.', true); return; }
+    out.innerHTML = ''; fb.innerHTML = '';
+    if (cam) { prev.srcObject = stream; prev.hidden = false; prev.play().catch(() => {}); }
+    const audioStream = new MediaStream(stream.getAudioTracks());
+    const make = (s, mime) => { const r = new MediaRecorder(s, mime ? { mimeType: mime } : undefined); const parts = []; r.ondataavailable = e => e.data.size && parts.push(e.data); r.done = new Promise(ok => r.onstop = () => ok(new Blob(parts, { type: r.mimeType }))); r.start(1000); return r; };
+    recs = [make(audioStream, pick(['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4']))];
+    if (cam) recs.push(make(stream, pick(['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm', 'video/mp4'])));
+    live = true; startT = Date.now(); btn.textContent = '■ Stop'; btn.classList.add('live');
+    tick = setInterval(() => { const s = (Date.now() - startT) / 1000; time.textContent = fmt(s); if (s >= MAX) stop(); }, 250);
+    hooks.onStart && hooks.onStart();
+  }
+  async function stop() {
+    if (!live) return; live = false; clearInterval(tick);
+    const dur = (Date.now() - startT) / 1000;
+    recs.forEach(r => r.state !== 'inactive' && r.stop());
+    const [aBlob, vBlob] = await Promise.all(recs.map(r => r.done));
+    stopTracks(); btn.textContent = '● Record again'; btn.classList.remove('live');
+    hooks.onStop && hooks.onStop();
+    markPractice();
+    const media = vBlob ? `<video class="play" controls playsinline src="${URL.createObjectURL(vBlob)}"></video>` : `<audio controls src="${URL.createObjectURL(aBlob)}"></audio>`;
+    out.innerHTML = media + `<div class="row" style="margin-top:10px"><button class="btn primary get-fb">Get coach feedback</button>${vBlob ? '<a class="btn" download="practice.webm" href="' + URL.createObjectURL(vBlob) + '">Save video</a>' : ''}</div>
+      <p class="muted small" style="margin-top:8px">Listen back once before reading the feedback — notice the stops yourself first.</p>`;
+    if (dur < 3) { $('.get-fb', out).disabled = true; $('.get-fb', out).textContent = 'Too short for feedback'; }
+    $('.get-fb', out).onclick = e => busy(e.target, 'Listening…', async () => { const entry = await analyse(aBlob, dur, ctxFn()); renderFeedback(fb, entry); fb.scrollIntoView({ behavior: 'smooth' }); });
+  }
+  btn.onclick = () => live ? stop() : start();
+  $('.cam', host).onchange = e => store.set('camera', e.target.checked);
+  onCleanup(() => { if (live) { live = false; clearInterval(tick); recs.forEach(r => { try { r.stop(); } catch (e) {} }); } stopTracks(); });
+  return { start, stop, get live() { return live; } };
+}
+
+/* ---------- thought-group chunking ---------- */
+const CONJ = /^(and|but|which|because|that|while|whereas|so|if|when|where|although|since|then|or|to|with|for|of|in)$/i;
+function splitLong(words) {
+  if (words.length <= 8) return [words.join(' ')];
+  let best = -1, bestD = 99; const mid = words.length / 2;
+  for (let i = 3; i <= words.length - 3; i++) if (CONJ.test(words[i].replace(/[^A-Za-z]/g, '')) && Math.abs(i - mid) < bestD) { best = i; bestD = Math.abs(i - mid); }
+  if (best < 0) best = Math.round(mid);
+  return [...splitLong(words.slice(0, best)), ...splitLong(words.slice(best))];
+}
+function localChunks(text) {
+  const paras = text.split(/\n\s*\n/).map(p => p.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  return { sections: paras.map((p, i) => ({
+    title: 'Part ' + (i + 1) + ': ' + p.split(' ').slice(0, 4).join(' ') + '…',
+    chunks: p.split(/(?<=[,;:.!?])\s+/).filter(Boolean).flatMap(s => splitLong(s.split(' '))).map(c => ({ text: c, stress: c.split(' ').reduce((a, b) => b.replace(/\W/g, '').length > a.replace(/\W/g, '').length ? b : a, '').replace(/[^\w'-]/g, '') }))
+  })) };
+}
+function chunkHTML(c) {
+  const t = esc(c.text); if (!c.stress) return t;
+  const s = esc(c.stress).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return t.replace(new RegExp('\\b(' + s + ')\\b', 'i'), '<b>$1</b>');
+}
+async function aiChunks(text) {
+  const r = await gemini([{ text: `Split this presentation script into sections (one per main idea) and thought groups for spoken delivery.
+A thought group is 3-8 words that carry one idea and are said without stopping; the speaker pauses only between groups, never inside one.
+Keep the original wording exactly; every word appears once, in order. For each group give the single word to stress. For each section give a 2-5 word title (these titles form the outline).
+Return {"sections":[{"title":"...","chunks":[{"text":"...","stress":"..."}]}]}
+
+Script:
+"""${text}"""` }], { temperature: 0.2 });
+  if (!Array.isArray(r.sections)) throw new Error("Gemini's reply was missing the sections. Try again.");
+  return r;
+}
+
+/* ---------- content ---------- */
+const WARMUP = [
+  { name: 'Belly breathing', secs: 60, how: 'Hand on your belly. Breathe in through the nose for 4, hold for 2, breathe out on a long “sss” for 6. Shoulders stay still; the belly moves.' },
+  { name: 'Jaw and face release', secs: 45, how: 'Massage the hinge of your jaw in small circles. Big slow yawn. Alternate a wide smile and a tight pucker.' },
+  { name: 'Lip trills', secs: 45, how: 'Blow air through relaxed lips (“brrr”), sliding your pitch slowly from low to high and back.' },
+  { name: 'Humming to open vowels', secs: 45, how: 'Hum “mmm” until you feel buzzing at the lips and nose, then open into “mmm-ah”, “mmm-oh”, “mmm-ee”.' },
+  { name: 'Pitch sirens', secs: 40, how: 'On “ng” (as in sing), glide from your lowest comfortable note to your highest and back, like a siren.' },
+  { name: 'Tongue stretches', secs: 30, how: 'Tongue out and down, then left and right, then slow circles around the outside of your teeth.' },
+  { name: 'Consonant pops', secs: 40, how: 'Crisp and short: “P-B, T-D, K-G” ten times, then “puh-tuh-kuh” faster and faster while every sound stays clean.' },
+  { name: 'Counted breath', secs: 45, how: 'Breathe in once, then count aloud from 1 to 20 at a steady volume. If you run out early, start again and pace your air.' }
+];
+const TWISTERS = [
+  { text: 'Heteroskedastic residuals rarely reveal robust regressors.', focus: 'R / L, stress on long terms' },
+  { text: 'Endogenous elasticity estimates elude eager econometricians.', focus: 'Vowel onsets, long words' },
+  { text: 'Six sticky supply shocks shift short-run supply schedules.', focus: 'S / SH' },
+  { text: 'Purchasing power parity predicts pretty precise price paths.', focus: 'P plosives' },
+  { text: 'Instrumental variables vindicate very vexing validity verdicts.', focus: 'V / W' },
+  { text: 'Three thousand thrifty thinkers thoroughly theorise thrift.', focus: 'TH' },
+  { text: 'Stochastic stationarity steadily stabilises the series.', focus: 'ST clusters' },
+  { text: 'Fiscal flexibility frequently fails fragile frontier economies.', focus: 'F / FL / FR' },
+  { text: 'Red leather, yellow leather.', focus: 'R / L (classic)' },
+  { text: 'Unique New York, you know you need unique New York.', focus: 'Y / N, lip agility (classic)' },
+  { text: 'The lips, the teeth, the tip of the tongue.', focus: 'Actors’ warm-up (classic)' },
+  { text: 'She sells seashells by the seashore.', focus: 'S / SH (classic)' }
+];
+const TEMPO = { slow: 'Exaggerate every consonant. Over-move your lips and jaw. Accuracy only.', normal: 'Natural speaking speed. Every sound still crisp.', fast: 'As fast as you can while staying 100% clear. If one sound slips, drop back a gear.' };
+
+/* ---------- views ---------- */
+const TITLES = { learn: 'Explain a concept', write: 'Writing task', home: 'Articulate', warmup: 'Warm-up', twisters: 'Articulation', read: 'Read aloud', script: 'Script Studio', prompter: 'Teleprompter', viva: 'Viva drill', topics: 'Course topics', history: 'Feedback', settings: 'Settings' };
+const TAB_VIEWS = ['home', 'script', 'viva', 'history', 'settings'];
+const V = {};
+const view = () => $('#view');
+
+V.home = () => {
+  const h = store.get('history', []); const t = activeTopic();
+  const recent = h.filter(e => e.mode !== 'writing').slice(0, 5); const avgMid = recent.length ? (recent.reduce((a, e) => a + midCount(e.result || {}), 0) / recent.length).toFixed(1) : '–';
+  view().innerHTML = `
+  ${store.get('apiKey', '') ? '' : '<div class="banner">AI feedback is off until you add your free Gemini API key. <a href="#settings">Open Settings</a>. Drills and the teleprompter work without it.</div>'}
+  <div class="card"><div class="stat">
+    <div><b>${streak()}</b><span class="muted">day streak</span></div>
+    <div><b>${h.length}</b><span class="muted">feedback sessions</span></div>
+    <div><b>${avgMid}</b><span class="muted">mid-phrase stops (last 5)</span></div>
+  </div></div>
+  <div class="card"><h2>Course topic</h2>
+    <p class="muted">${t ? 'Practising with <b>' + esc(t.name) + '</b>. Generated twisters, passages and viva questions come from these notes.' : 'Add a topic from your coursework and paste your notes. Every exercise will then use it.'}</p>
+    <a class="btn" href="#topics">${t ? 'Change topic' : 'Add a topic'}</a></div>
+  <h3>Today's session · about 20 minutes</h3>
+  <div class="grid">
+    <a class="tile" href="#warmup"><span class="ico">①</span><b>Warm-up</b><span class="muted small">5 min · breath and voice</span></a>
+    <a class="tile" href="#twisters"><span class="ico">②</span><b>Articulation</b><span class="muted small">4 min · tongue twisters</span></a>
+    <a class="tile" href="#read"><span class="ico">③</span><b>Read aloud</b><span class="muted small">5 min · clarity and stress</span></a>
+    <a class="tile" href="#script"><span class="ico">④</span><b>Script Studio</b><span class="muted small">pauses between ideas</span></a>
+    <a class="tile wide" href="#viva"><span class="ico">⑤</span><b>Viva drill</b><span class="muted small">answer examiner-style questions on your topic</span></a>
+  </div>
+  <h3>Study and write</h3>
+  <div class="grid">
+    <a class="tile" href="#learn"><span class="ico">✦</span><b>Explain a concept</b><span class="muted small">searches the web or reads a link</span></a>
+    <a class="tile" href="#write"><span class="ico">✎</span><b>Writing task</b><span class="muted small">write, then get analysis</span></a>
+  </div>`;
+};
+
+V.warmup = () => {
+  let i = 0, left = WARMUP[0].secs, run = null;
+  view().innerHTML = `<div class="card"><p class="muted small">Stand or sit tall. These prepare your breath, resonance and articulators so later drills go further.</p>
+    <div class="timer" id="wt">${fmt(left)}</div><div class="big" id="wn" style="text-align:center"></div><p id="wh" style="text-align:center;margin-top:8px"></p>
+    <div class="progress"><i id="wp"></i></div>
+    <div class="row" style="justify-content:center;margin-top:14px"><button class="btn" id="wprev">‹ Prev</button><button class="btn primary" id="wgo">Start</button><button class="btn" id="wnext">Next ›</button></div></div>
+    <div class="card"><ul class="steps" id="wl"></ul></div>`;
+  const draw = () => {
+    const s = WARMUP[i]; $('#wn').textContent = s.name; $('#wh').textContent = s.how; $('#wt').textContent = fmt(left);
+    $('#wp').style.width = (100 * (1 - left / s.secs)) + '%';
+    $('#wl').innerHTML = WARMUP.map((x, k) => `<li class="${k === i ? 'cur' : k < i ? 'done' : ''}"><b>${esc(x.name)}</b> <span class="muted small">${x.secs}s</span></li>`).join('');
+  };
+  const pause = () => { clearInterval(run); run = null; $('#wgo').textContent = 'Start'; };
+  const go = k => { i = Math.max(0, Math.min(WARMUP.length - 1, k)); left = WARMUP[i].secs; draw(); };
+  $('#wgo').onclick = () => {
+    if (run) return pause();
+    $('#wgo').textContent = 'Pause';
+    run = setInterval(() => {
+      left--; if (left <= 0) {
+        beep(); if (i === WARMUP.length - 1) { pause(); markPractice(); left = 0; draw(); toast('Warm-up done. On to articulation.'); return; }
+        go(i + 1); return;
+      }
+      draw();
+    }, 1000);
+  };
+  $('#wprev').onclick = () => go(i - 1); $('#wnext').onclick = () => go(i + 1);
+  onCleanup(() => clearInterval(run)); draw();
+};
+
+V.twisters = () => {
+  const list = () => [...store.get('myTwisters', []), ...TWISTERS];
+  let i = 0, tempo = 'slow', reps = 0;
+  view().innerHTML = `<div class="card">
+    <div class="row" style="justify-content:space-between"><span class="tag" id="tf"></span><span class="muted small" id="tn"></span></div>
+    <p class="big" id="tt" style="margin:12px 0"></p>
+    <div class="seg" id="tempo"><button data-t="slow">Slow</button><button data-t="normal">Normal</button><button data-t="fast">Fast</button></div>
+    <p class="muted small" id="th" style="margin-top:8px"></p>
+    <div class="row"><span class="muted small">Reps:</span><div class="dots" id="dots"></div></div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="tp">‹ Prev</button><button class="btn" id="tx">Next ›</button><button class="btn" id="ts">Shuffle</button></div>
+  </div>
+  <div id="trec"></div>
+  <div class="card"><h2>From your coursework</h2><p class="muted small">Gemini writes new twisters packed with the terms from your current topic.</p><button class="btn primary" id="tg">Generate 6 twisters</button></div>`;
+  const draw = () => {
+    const L = list(); i = (i + L.length) % L.length; const t = L[i];
+    $('#tt').textContent = t.text; $('#tf').textContent = t.focus || 'articulation'; $('#tn').textContent = (i + 1) + ' / ' + L.length;
+    $$('#tempo button').forEach(b => b.classList.toggle('on', b.dataset.t === tempo)); $('#th').textContent = TEMPO[tempo];
+    $('#dots').innerHTML = [0, 1, 2, 3, 4].map(k => `<i class="${k < reps ? 'on' : ''}"></i>`).join('');
+    $$('#dots i').forEach((d, k) => d.onclick = () => { reps = reps === k + 1 ? k : k + 1; draw(); });
+  };
+  const change = k => { i = k; reps = 0; draw(); };
+  $$('#tempo button').forEach(b => b.onclick = () => { tempo = b.dataset.t; draw(); });
+  $('#tp').onclick = () => change(i - 1); $('#tx').onclick = () => change(i + 1); $('#ts').onclick = () => change(Math.floor(Math.random() * list().length));
+  mountRecorder($('#trec'), () => ({ mode: 'twister', expected: list()[i].text + ' (repeated several times, tempo: ' + tempo + ')', title: 'Twister: ' + list()[i].text.slice(0, 40) }));
+  $('#tg').onclick = e => { if (!needTopic()) return; busy(e.target, 'Writing…', async () => {
+    const r = await gemini([{ text: topicContext() + `\nWrite 6 original English tongue twisters (7-12 words each) built from the key technical terms of this topic, for articulation practice. Vary the target sounds (R/L, TH, S/SH, V/W, P/B, consonant clusters). Each should be grammatical and roughly meaningful.
+Return {"twisters":[{"text":"...","focus":"sounds trained"}]}` }], { temperature: 0.9 });
+    const add = (r.twisters || []).filter(t => t && t.text).map(t => ({ text: String(t.text), focus: String(t.focus || '') }));
+    if (!add.length) throw new Error('No twisters came back. Try again.');
+    store.set('myTwisters', [...add, ...store.get('myTwisters', [])].slice(0, 40)); change(0); toast(add.length + ' new twisters added');
+  }); };
+  draw();
+};
+
+V.read = () => {
+  let p = store.get('readPassage', null), groups = false;
+  view().innerHTML = `<div class="card"><div class="row"><button class="btn primary" id="rg">New passage from topic</button><button class="btn" id="ro">Use my own text</button></div>
+    <div id="rown" hidden><textarea id="rt" placeholder="Paste a paragraph from your reading, slides or paper"></textarea><div class="row" style="margin-top:8px"><button class="btn primary" id="rs">Use this text</button></div></div></div>
+    <div class="card" id="rp"></div><div id="rrec"></div>
+    <div class="card"><h2>Pronunciation drill</h2><p class="muted small">Ten hard terms from your topic, each with syllables and stress. Tap 🔊, repeat three times, then use the word in a sentence aloud.</p>
+      <button class="btn primary" id="wd">Generate word drill</button><div id="wdl" style="margin-top:10px"></div></div>`;
+  const drawWords = () => {
+    const W = store.get('wordDrill', []); if (!W.length) return;
+    $('#wdl').innerHTML = '<ul class="plain">' + W.map((w, k) => `<li style="margin-bottom:8px"><button class="btn" style="min-height:32px;padding:2px 8px" data-w="${k}">🔊</button> <b>${esc(w.word)}</b> <span class="tag">${esc(w.stress)}</span><br><span class="small muted">${esc(w.tip)}</span><br><span class="small">“${esc(w.sentence)}” <a href="#" data-ws="${k}">🔊</a></span></li>`).join('') + '</ul>';
+    $$('[data-w]').forEach(b => b.onclick = () => speak(W[+b.dataset.w].word, 0.7));
+    $$('[data-ws]').forEach(a => a.onclick = e => { e.preventDefault(); speak(W[+a.dataset.ws].sentence, 0.9); });
+  };
+  $('#wd').onclick = e => { if (!needTopic()) return; busy(e.target, 'Choosing words…', async () => {
+    const r = await gemini([{ text: topicContext() + `\nPick the 10 terms from this topic that a Bangladeshi English speaker is most likely to mispronounce or mis-stress in a presentation. For each give: the word, its syllables with the stressed one in capitals (e.g. "e-co-NO-mic"), a short tip on the common mistake, and one short sentence using it in context.
+Return {"words":[{"word":"...","stress":"...","tip":"...","sentence":"..."}]}` }], { temperature: 0.5 });
+    if (!Array.isArray(r.words) || !r.words.length) throw new Error('No words came back. Try again.');
+    store.set('wordDrill', r.words); drawWords();
+  }); };
+  drawWords();
+  const draw = () => {
+    if (!p) { $('#rp').innerHTML = '<p class="muted">No passage yet. Generate one from your topic or paste your own.</p>'; $('#rrec').innerHTML = ''; return; }
+    const body = groups ? localChunks(p.passage).sections.map(s => s.chunks.map(chunkHTML).join('<span class="sl">/</span>')).join('<br><br>') : esc(p.passage).replace(/\n/g, '<br>');
+    $('#rp').innerHTML = `<div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(p.title || 'Passage')}</h2><label class="small muted"><input type="checkbox" id="rgp" ${groups ? 'checked' : ''}> show / pauses</label></div>
+      <p class="muted small">Read as if presenting to a room: clear endings on every word, slight stress on the key term in each phrase, pause only at the slashes or punctuation.</p>
+      <div class="chunks" style="margin-top:8px">${body}</div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="rh">🔊 Hear it</button><button class="btn" id="rhs">🔊 Slowly</button><button class="btn" id="rhx">■</button></div>
+      <p class="muted small">Shadowing: play it, then read along half a second behind the voice, copying its rhythm and stress.</p>
+      ${p.tricky?.length ? '<h3>Tricky words</h3><ul class="plain">' + p.tricky.map((t, k) => `<li><button class="btn" style="min-height:32px;padding:2px 8px" data-say="${k}">🔊</button> <b>${esc(t.word)}</b> — ${esc(t.tip)}</li>`).join('') + '</ul>' : ''}`;
+    $('#rgp').onchange = e => { groups = e.target.checked; draw(); };
+    $('#rh').onclick = () => speak(p.passage, 0.95); $('#rhs').onclick = () => speak(p.passage, 0.7); $('#rhx').onclick = () => speechSynthesis.cancel();
+    $$('[data-say]').forEach(b => b.onclick = () => speak(p.tricky[+b.dataset.say].word, 0.75));
+    if (!$('#rrec').innerHTML) mountRecorder($('#rrec'), () => ({ mode: 'read', expected: p.passage, title: 'Read: ' + (p.title || 'passage') }));
+  };
+  $('#ro').onclick = () => { $('#rown').hidden = !$('#rown').hidden; };
+  $('#rs').onclick = () => { const t = $('#rt').value.trim(); if (wordCount(t) < 15) return toast('Paste at least a few sentences'); p = { title: 'My text', passage: t, tricky: [] }; store.set('readPassage', p); $('#rown').hidden = true; $('#rrec').innerHTML = ''; draw(); };
+  $('#rg').onclick = e => { if (!needTopic()) return; busy(e.target, 'Writing…', async () => {
+    const r = await gemini([{ text: topicContext() + `\nWrite a read-aloud passage of 120-160 words that explains one important idea from this topic in clear academic English, as it would be said in a seminar presentation. Use the topic's real technical terms. Then list 3-5 words from the passage that are hard to pronounce, each with a short tip showing syllables and stress in capitals (e.g. "he-te-ro-ske-DAS-tic").
+Return {"title":"...","passage":"...","tricky":[{"word":"...","tip":"..."}]}` }], { temperature: 0.8 });
+    if (!r.passage) throw new Error('No passage came back. Try again.');
+    p = { title: String(r.title || 'Passage'), passage: String(r.passage), tricky: Array.isArray(r.tricky) ? r.tricky : [] }; store.set('readPassage', p); $('#rrec').innerHTML = ''; draw();
+  }); };
+  draw();
+};
+
+V.script = () => {
+  const chunks = store.get('scriptChunks', null);
+  view().innerHTML = `<div class="card"><h2>Your presentation script</h2>
+    <p class="muted small">Paste the script you will deliver. Leave a blank line between sections or slides.</p>
+    <textarea id="sc" style="min-height:180px" placeholder="Good morning. Today I will show how remittance inflows affect Bangladesh's foreign exchange reserves…">${esc(store.get('script', ''))}</textarea>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="sai">Mark thought groups (AI)</button><button class="btn" id="sloc">Quick split (offline)</button></div></div>
+  <div class="card"><h2>Why thought groups</h2><p class="small">A <b>thought group</b> is a short run of words carrying one idea, said in one breath. Pausing <i>between</i> groups sounds confident and gives the audience time to absorb. Stopping <i>inside</i> a group cuts the meaning in half. The fix is to finish the group, pause, and plan the next group during that pause.</p></div>
+  <div id="sout"></div>`;
+  const ta = $('#sc'); ta.oninput = () => store.set('script', ta.value);
+  const show = c => {
+    if (!c) return;
+    $('#sout').innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Marked script</h2><a class="btn primary" href="#prompter">Teleprompter ›</a></div>
+      <p class="muted small">Pause at each <span class="sl" style="color:var(--accent);font-weight:700">/</span>. Underlined word = stress it. Read it aloud twice here before using the teleprompter.</p>
+      ${c.sections.map(s => `<div class="sec-title">${esc(s.title)}</div><div class="chunks">${(s.chunks || []).map(chunkHTML).join('<span class="sl">/</span>')}</div>`).join('')}</div>`;
+  };
+  const save = c => { store.set('scriptChunks', c); store.set('scriptChunksFor', ta.value); show(c); };
+  $('#sloc').onclick = () => { if (wordCount(ta.value) < 10) return toast('Paste your script first'); save(localChunks(ta.value)); };
+  $('#sai').onclick = e => { if (wordCount(ta.value) < 10) return toast('Paste your script first'); busy(e.target, 'Marking…', async () => save(await aiChunks(ta.value))); };
+  if (chunks && store.get('scriptChunksFor', '') === ta.value) show(chunks);
+};
+
+V.prompter = () => {
+  const c = store.get('scriptChunks', null);
+  if (!c || !c.sections?.length) { view().innerHTML = '<div class="card"><p>Mark your script first.</p><a class="btn primary" href="#script">Go to Script Studio</a></div>'; return; }
+  const flat = []; c.sections.forEach((s, si) => (s.chunks || []).forEach(ch => flat.push({ ...ch, si, title: s.title })));
+  let i = 0, mode = store.get('pMode', 'full'), wpm = store.get('pWpm', 140), auto = store.get('pAuto', true), timer = null, lock = null;
+  view().innerHTML = `<div class="prompter" id="pr"></div><div class="progress"><i id="pp"></i></div>
+  <div class="card" style="margin-top:12px">
+    <div class="seg" id="pm"><button data-m="full">Full script</button><button data-m="key">Key words</button><button data-m="outline">Outline</button></div>
+    <p class="muted small" style="margin-top:8px" id="pmh"></p>
+    <label class="lbl">Pace: <b id="pwv">${wpm}</b> words per minute</label><input type="range" id="pw" min="100" max="180" step="5" value="${wpm}" style="width:100%">
+    <div class="row" style="margin-top:8px"><label class="small"><input type="checkbox" id="pa" ${auto ? 'checked' : ''}> auto-advance</label><span class="grow"></span><button class="btn" id="pb">‹</button><button class="btn" id="pf">›</button><button class="btn" id="pr0">Restart</button></div>
+    <p class="muted small">Tap the dark panel to advance. Recording starts the prompter from the top.</p>
+  </div><div id="prec"></div>`;
+  const MH = { full: 'Read every word. Focus on pausing only between groups.', key: 'Only the stressed word of each group shows. Rebuild the phrase in your own words.', outline: 'Only section titles. Deliver each section naturally — this is your viva-ready level.' };
+  const units = () => mode === 'outline' ? c.sections.map((s, si) => ({ text: s.title, si, title: s.title, words: (s.chunks || []).reduce((a, ch) => a + wordCount(ch.text), 0) })) : flat.map(f => ({ ...f, words: wordCount(f.text) }));
+  const draw = () => {
+    const U = units(); i = Math.max(0, Math.min(U.length - 1, i)); const u = U[i], pv = U[i - 1], nx = U[i + 1];
+    const shown = x => !x ? '' : mode === 'full' ? chunkHTML(x) : mode === 'key' ? '<b>' + esc(x.stress || x.text.split(' ')[0]) + '</b>' : esc(x.text);
+    $('#pr').innerHTML = `<div class="p-sec">${esc(mode === 'outline' ? 'Section ' + (u.si + 1) + ' of ' + c.sections.length : u.title)}</div>
+      <div class="p-prev">${pv ? shown(pv) : '&nbsp;'}</div><div class="p-cur">${shown(u)}</div><div class="p-next">${nx ? shown(nx) : '<i>— end —</i>'}</div>`;
+    $('#pp').style.width = (100 * (i + 1) / U.length) + '%';
+    $$('#pm button').forEach(b => b.classList.toggle('on', b.dataset.m === mode)); $('#pmh').textContent = MH[mode];
+  };
+  const stopAuto = () => { clearTimeout(timer); timer = null; };
+  const schedule = () => {
+    stopAuto(); if (!auto) return; const U = units(); if (i >= U.length - 1) return;
+    timer = setTimeout(() => { i++; draw(); schedule(); }, U[i].words / wpm * 60000 + 650);
+  };
+  const step = d => { i += d; draw(); schedule(); };
+  $('#pr').onclick = () => step(1); $('#pb').onclick = () => step(-1); $('#pf').onclick = () => step(1);
+  $('#pr0').onclick = () => { i = 0; draw(); schedule(); };
+  $$('#pm button').forEach(b => b.onclick = () => { mode = b.dataset.m; store.set('pMode', mode); i = 0; stopAuto(); draw(); });
+  $('#pw').oninput = e => { wpm = +e.target.value; $('#pwv').textContent = wpm; store.set('pWpm', wpm); };
+  $('#pa').onchange = e => { auto = e.target.checked; store.set('pAuto', auto); auto ? schedule() : stopAuto(); };
+  const wake = async () => { try { lock = await navigator.wakeLock?.request('screen'); } catch (e) {} };
+  wake();
+  mountRecorder($('#prec'), () => ({ mode: 'script', expected: store.get('scriptChunksFor', '') || flat.map(f => f.text).join(' '), title: 'Script (' + (mode === 'full' ? 'full' : mode === 'key' ? 'key words' : 'outline') + ')' }),
+    { onStart: () => { i = 0; draw(); schedule(); }, onStop: stopAuto });
+  onCleanup(() => { stopAuto(); try { lock && lock.release(); } catch (e) {} });
+  draw();
+};
+
+V.viva = () => {
+  let q = store.get('vivaQ', null), level = store.get('vivaLevel', 'standard'), prep = null;
+  view().innerHTML = `<div class="card"><h2>Viva drill</h2>
+    <p class="muted small">Gemini plays the examiner on your current topic. Think briefly, then answer aloud. A strong structure: answer in one sentence → explain the mechanism → give evidence or an example → state a limitation.</p>
+    <div class="seg" id="vl"><button data-l="gentle">Gentle</button><button data-l="standard">Standard</button><button data-l="tough">Tough</button></div>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="vq">New question</button></div></div>
+    <div id="vbox"></div><div id="vrec"></div>`;
+  const drawLevel = () => $$('#vl button').forEach(b => b.classList.toggle('on', b.dataset.l === level));
+  const draw = () => {
+    if (!q) { $('#vbox').innerHTML = ''; $('#vrec').innerHTML = ''; return; }
+    $('#vbox').innerHTML = `<div class="card"><span class="tag">${esc(q.level)}</span><span class="tag">${esc(q.topic || '')}</span>
+      <p class="big" style="margin-top:10px">${esc(q.question)}</p>
+      <div class="row"><button class="btn" id="vp">Think 20s, then record</button><span class="rec-time" id="vpt"></span></div>
+      <details style="margin-top:12px"><summary>What the examiner wants (open after answering)</summary>
+        <ul class="plain" style="margin-top:6px">${(q.wants || []).map(w => '<li>' + esc(w) + '</li>').join('')}</ul>
+        ${q.follow_up ? '<p class="small" style="margin-top:8px"><b>Likely follow-up:</b> ' + esc(q.follow_up) + '</p>' : ''}</details></div>`;
+    const rec = mountRecorder($('#vrec'), () => ({ mode: 'viva', question: q.question, title: 'Viva: ' + q.question.slice(0, 50) }));
+    $('#vp').onclick = () => {
+      clearInterval(prep); let s = 20; $('#vpt').textContent = s + 's';
+      prep = setInterval(() => { s--; $('#vpt').textContent = s > 0 ? s + 's' : ''; if (s <= 0) { clearInterval(prep); beep(660); rec.start(); } }, 1000);
+    };
+  };
+  $$('#vl button').forEach(b => b.onclick = () => { level = b.dataset.l; store.set('vivaLevel', level); drawLevel(); });
+  $('#vq').onclick = e => { if (!needTopic()) return; busy(e.target, 'Thinking…', async () => {
+    const asked = store.get('vivaAsked', []).slice(-15);
+    const r = await gemini([{ text: topicContext() + `\nYou are a viva / thesis-defence examiner for a master's in economics. Ask ONE ${level} question on this topic (gentle = define or explain; standard = explain a mechanism or interpret a result; tough = challenge an assumption, identification or policy implication). Answerable aloud in 1-2 minutes. Do not repeat these earlier questions: ${JSON.stringify(asked)}.
+Return {"question":"...","wants":["3-4 points a strong answer covers"],"follow_up":"a likely follow-up question"}` }], { temperature: 0.9 });
+    if (!r.question) throw new Error('No question came back. Try again.');
+    q = { question: String(r.question), wants: Array.isArray(r.wants) ? r.wants : [], follow_up: r.follow_up || '', level, topic: activeTopic()?.name };
+    store.set('vivaQ', q); store.set('vivaAsked', [...asked, q.question]); $('#vrec').innerHTML = ''; draw();
+  }); };
+  onCleanup(() => clearInterval(prep));
+  drawLevel(); draw();
+};
+
+const WRITE_TYPES = {
+  simple: 'Explain it simply — to a first-year student, no jargon left undefined (about 150 words)',
+  summary: 'Summarise — an abstract-style summary of the key idea and why it matters (about 120 words)',
+  argue: 'Argue a position — take a side on a debate in this topic and defend it (about 200 words)',
+  slide: 'Slide script — what you would say for one presentation slide (about 120 words, written to be spoken)',
+  viva: 'Written viva answer — answer an examiner question precisely (about 150 words)'
+};
+V.write = () => {
+  let task = store.get('writeTask', null), type = store.get('writeType', 'simple');
+  view().innerHTML = `<div class="card"><h2>Writing task</h2>
+    <p class="muted small">Clear writing and clear speaking come from the same habit: one idea per sentence, in a logical order. Pick a task type and get a prompt from your topic, or write your own.</p>
+    <label class="lbl">Task type</label><select id="wt">${Object.entries(WRITE_TYPES).map(([k, v]) => `<option value="${k}" ${k === type ? 'selected' : ''}>${esc(v.split(' — ')[0])}</option>`).join('')}</select>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="wg">New prompt from topic</button><button class="btn" id="wo">Write my own prompt</button></div></div>
+  <div class="card" id="wtask"></div>
+  <div class="card"><textarea id="wtx" style="min-height:220px" placeholder="Write here…">${esc(store.get('writeDraft', ''))}</textarea>
+    <div class="row" style="margin-top:8px"><span class="muted small grow" id="wc"></span><button class="btn primary" id="wa">Analyse my writing</button></div></div>
+  <div id="wfb"></div>`;
+  const ta = $('#wtx');
+  const count = () => { const n = wordCount(ta.value); $('#wc').textContent = n + ' words' + (task?.words ? ' / target ' + task.words : ''); };
+  const drawTask = () => {
+    $('#wtask').innerHTML = task ? `<span class="tag">${esc(WRITE_TYPES[task.type]?.split(' — ')[0] || 'Task')}</span><p class="big" style="margin-top:8px;font-size:19px">${esc(task.prompt)}</p>${(task.tips || []).length ? '<ul class="plain small">' + task.tips.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' : ''}`
+      : '<p class="muted">No prompt yet.</p>';
+    count();
+  };
+  ta.oninput = () => { store.set('writeDraft', ta.value); count(); };
+  $('#wt').onchange = e => { type = e.target.value; store.set('writeType', type); };
+  $('#wo').onclick = () => { const q = prompt('Your writing prompt:'); if (q && q.trim()) { task = { type, prompt: q.trim(), tips: [], words: null }; store.set('writeTask', task); drawTask(); } };
+  $('#wg').onclick = e => { if (!needTopic()) return; busy(e.target, 'Thinking…', async () => {
+    const r = await gemini([{ text: topicContext() + `\nSet ONE writing task for a master's economics student on this topic. Task type: ${WRITE_TYPES[type]}.
+Return {"prompt":"the task, one or two sentences","words":target word count as a number,"tips":["2-3 short tips for doing this task well"]}` }], { temperature: 0.9 });
+    if (!r.prompt) throw new Error('No prompt came back. Try again.');
+    task = { type, prompt: String(r.prompt), words: +r.words || null, tips: Array.isArray(r.tips) ? r.tips : [] }; store.set('writeTask', task); drawTask();
+  }); };
+  $('#wa').onclick = e => {
+    if (wordCount(ta.value) < 25) return toast('Write at least 25 words first');
+    busy(e.target, 'Reading…', async () => {
+      const r = await gemini([{ text: `${topicContext()}
+Task given to the student: ${task ? task.prompt : '(free writing)'}${task?.words ? ' (target ' + task.words + ' words)' : ''}
+
+His writing:
+"""${ta.value}"""
+
+Analyse it as a strict but kind academic writing coach. He wants clear, well-structured English that is also easy to say aloud in a presentation.
+Return JSON:
+"scores": {"clarity":1-10,"structure":1-10,"concision":1-10,"accuracy":1-10 (correctness of the economics),"grammar":1-10}
+"summary": one-sentence overall verdict
+"issues": up to 6 objects {"original":"exact phrase from his text","better":"improved wording","why":"short reason"}, most important first, covering grammar, unclear phrasing, wordiness, logic gaps and economic errors
+"strengths": 2 specific points
+"speakability": 1-2 sentences on whether this would be easy to deliver aloud (flag sentences over 25 words or with nested clauses)
+"improved": a rewritten version that keeps his ideas and voice but fixes the issues, similar length` }], { temperature: 0.3, system: COACH_SYSTEM });
+      const entry = { id: Date.now().toString(36), at: Date.now(), mode: 'writing', title: 'Writing: ' + (task ? task.prompt.slice(0, 50) : 'free writing'), topic: activeTopic()?.name || '', task: task?.prompt || '', text: ta.value, result: r, chat: [] };
+      saveEntry(entry); markPractice(); renderWriting($('#wfb'), entry); $('#wfb').scrollIntoView({ behavior: 'smooth' });
+    });
+  };
+  drawTask();
+};
+
+V.learn = () => {
+  let last = store.get('learnLast', null), level = store.get('learnLevel', 'exam');
+  view().innerHTML = `<div class="card"><h2>Explain a concept</h2>
+    <p class="muted small">Ask about any concept, or paste a link (an article, a working paper page, a lecture page) and Gemini will read it. It checks facts with Google Search and lists its sources.</p>
+    <textarea id="lq" style="min-height:90px" placeholder="e.g. Why does the Solow model predict conditional rather than absolute convergence?&#10;or: https://… (and what you want from it)"></textarea>
+    <div class="row" style="margin-top:8px"><div class="seg" id="ll"><button data-l="simple">Simple</button><button data-l="exam">Exam-ready</button><button data-l="technical">Technical</button></div></div>
+    <label class="small" style="display:block;margin-top:8px"><input type="checkbox" id="lt" ${activeTopic() ? 'checked' : ''}> also use my notes on the active topic</label>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="lgo">Explain</button></div></div>
+  <div id="lout"></div>`;
+  const drawLevel = () => $$('#ll button').forEach(b => b.classList.toggle('on', b.dataset.l === level));
+  const LEVEL = { simple: 'Simple: plain words for someone new to the idea, one everyday analogy.', exam: 'Exam-ready: precise definitions and the reasoning an examiner expects, at master\'s level.', technical: 'Technical: include the formal model, assumptions and key results, with notation written in plain text.' };
+  const draw = () => {
+    if (!last) return;
+    $('#lout').innerHTML = `<div class="card"><span class="tag">${esc(last.level)}</span><p class="small muted" style="margin-top:6px">${esc(last.q)}</p>${md(last.text)}
+      ${last.sources?.length ? '<h3>Sources</h3><ul class="plain small">' + last.sources.slice(0, 8).map(s => `<li><a href="${esc(s.uri)}" target="_blank" rel="noopener">${esc(s.title)}</a>${s.status && !/SUCCESS/.test(s.status) ? ' <span class="muted">(could not open)</span>' : ''}</li>`).join('') + '</ul>' : ''}
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="lsay">Practise saying it</button><button class="btn" id="lhear">🔊 Hear it</button><button class="btn" id="lsave">Save as topic</button></div>
+      <h3>Follow-up</h3><div class="row"><input type="text" class="grow" id="lf" placeholder="e.g. Give me a numerical example"><button class="btn" id="lfgo">Ask</button></div></div>`;
+    const say = sectionOf(last.text, 'Say it aloud') || last.text;
+    $('#lsay').onclick = () => { store.set('readPassage', { title: last.q.slice(0, 60), passage: say.replace(/^[-*] /gm, '').replace(/\*\*/g, ''), tricky: [] }); location.hash = '#read'; };
+    $('#lhear').onclick = () => speak(say.replace(/\*\*/g, ''));
+    $('#lsave').onclick = () => { const name = prompt('Topic name:', last.q.slice(0, 60)); if (!name) return; const T = topics(); const id = Date.now().toString(36); T.unshift({ id, name, notes: last.text.replace(/\*\*/g, '') }); store.set('topics', T); store.set('activeTopic', id); updateChip(); toast('Saved and set as active topic'); };
+    $('#lfgo').onclick = e => { const f = $('#lf').value.trim(); if (f) ask(e.target, f, last); };
+  };
+  const ask = (btn, q, prev) => busy(btn, 'Searching…', async () => {
+    const urls = (q.match(/https?:\/\/\S+/g) || []);
+    const tools = [{ google_search: {} }]; if (urls.length) tools.unshift({ url_context: {} });
+    const notes = $('#lt').checked ? topicContext() : '';
+    const r = await gemini([{ text: `${notes}${prev ? 'Your previous explanation was:\n"""' + prev.text + '"""\nThe student now asks a follow-up.\n' : ''}
+Request from a master's student in economics in Bangladesh: ${q}
+${urls.length ? 'Base the explanation on the linked page(s) first; say so if a page could not be read.' : ''}
+Level — ${LEVEL[level]}
+Use Google Search to check facts and any current figures.
+Write in calm, plain language before any formal notation, and define every term before using it.
+${prev ? 'Answer the follow-up directly in 100-250 words.' : `Structure it with exactly these headings:
+## In one sentence
+## Intuition (an everyday example)
+## How it works (step by step, with a small numerical example where it helps)
+## In the exam or viva (how to state it precisely; common mistakes)
+## Say it aloud (a 60-second spoken explanation in short, speakable sentences)`}
+Formatting: only "## " headings, "- " bullets and **bold**. No LaTeX, no tables; write maths in plain text with Unicode sub/superscripts (e.g. Yₜ, K^α written as Kᵅ).` }], { tools, temperature: 0.4 });
+    last = prev ? { ...prev, text: prev.text + '\n## Follow-up: ' + q + '\n' + r.text, sources: [...(prev.sources || []), ...r.sources] } : { q, level, text: r.text, sources: r.sources };
+    store.set('learnLast', last); draw(); markPractice();
+    if (!prev) $('#lout').scrollIntoView({ behavior: 'smooth' });
+  });
+  $$('#ll button').forEach(b => b.onclick = () => { level = b.dataset.l; store.set('learnLevel', level); drawLevel(); });
+  $('#lgo').onclick = e => { const q = $('#lq').value.trim(); if (q.length < 3) return toast('Type a concept or paste a link'); ask(e.target, q, null); };
+  drawLevel(); draw();
+};
+
+V.topics = () => {
+  let editing = null;
+  const draw = () => {
+    const T = topics(), act = store.get('activeTopic', null);
+    view().innerHTML = `<div class="card"><h2>${editing ? 'Edit topic' : 'Add a topic'}</h2>
+      <label class="lbl">Topic name</label><input type="text" id="tn" placeholder="e.g. Solow model and conditional convergence" value="${esc(editing?.name || '')}">
+      <label class="lbl">Your notes (paste lecture notes, slide text or a reading summary)</label><textarea id="tx" style="min-height:160px">${esc(editing?.notes || '')}</textarea>
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="tsv">${editing ? 'Save changes' : 'Add topic'}</button>${editing ? '<button class="btn" id="tcx">Cancel</button>' : ''}</div></div>
+      ${T.length ? '<h3>Your topics</h3>' : ''}
+      ${T.map(t => `<div class="card"><div class="row" style="justify-content:space-between"><b>${esc(t.name)}</b>${t.id === act ? '<span class="tag">active</span>' : ''}</div>
+        <p class="muted small">${wordCount(t.notes)} words of notes</p>
+        <div class="row">${t.id === act ? '' : `<button class="btn primary" data-act="${t.id}">Practise this</button>`}<button class="btn" data-ed="${t.id}">Edit</button><button class="btn danger" data-del="${t.id}">Delete</button></div></div>`).join('')}`;
+    $('#tsv').onclick = () => {
+      const name = $('#tn').value.trim(), notes = $('#tx').value.trim(); if (!name) return toast('Give the topic a name');
+      const T2 = topics();
+      if (editing) { const k = T2.findIndex(x => x.id === editing.id); if (k >= 0) T2[k] = { ...T2[k], name, notes }; }
+      else { const id = Date.now().toString(36); T2.unshift({ id, name, notes }); store.set('activeTopic', id); }
+      store.set('topics', T2); editing = null; updateChip(); toast('Saved'); draw();
+    };
+    if (editing) $('#tcx').onclick = () => { editing = null; draw(); };
+    $$('[data-act]').forEach(b => b.onclick = () => { store.set('activeTopic', b.dataset.act); updateChip(); toast('Active topic set'); draw(); });
+    $$('[data-ed]').forEach(b => b.onclick = () => { editing = topics().find(t => t.id === b.dataset.ed); draw(); window.scrollTo(0, 0); });
+    $$('[data-del]').forEach(b => b.onclick = () => { if (!confirm('Delete this topic?')) return; store.set('topics', topics().filter(t => t.id !== b.dataset.del)); if (store.get('activeTopic') === b.dataset.del) store.set('activeTopic', null); updateChip(); draw(); });
+  };
+  draw();
+};
+
+V.history = () => {
+  const h = store.get('history', []);
+  if (!h.length) { view().innerHTML = '<div class="card"><p>No feedback yet. Record any exercise and tap <b>Get coach feedback</b>. Your sessions and coach chats are kept here.</p></div>'; return; }
+  const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+  const sp = h.filter(e => e.mode !== 'writing'); const a = sp.slice(0, 5), b = sp.slice(5, 10);
+  const m1 = avg(a.map(e => midCount(e.result || {}))), m0 = avg(b.map(e => midCount(e.result || {})));
+  view().innerHTML = `${m1 != null ? `<div class="card"><h2>Trend</h2><p class="small">Mid-phrase stops per speaking session: <b>${m1.toFixed(1)}</b> (last 5)${m0 != null ? ' vs ' + m0.toFixed(1) + ' (5 before)' + (m1 < m0 ? ' — improving.' : m1 > m0 ? ' — slipping; slow down and pause at the slashes.' : '.') : ''}</p></div>` : ''}
+  ${h.map(e => { const r = e.result || {}; const w = e.mode === 'writing'; return `<div class="card hist" data-id="${e.id}">
+    <div class="meta"><span>${new Date(e.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span><span>${esc(e.topic || '')}</span></div>
+    <b>${esc(e.title)}</b>
+    <div class="meta" style="margin-top:4px">${w ? `<span>Clarity ${esc(r.scores?.clarity ?? '–')} · Structure ${esc(r.scores?.structure ?? '–')} · Grammar ${esc(r.scores?.grammar ?? '–')}</span><span>✎ ${wordCount(e.text)} words</span>`
+      : `<span>Fluency ${esc(r.scores?.fluency ?? '–')} · Clarity ${esc(r.scores?.clarity ?? '–')} · ${r.wpm ?? '–'} wpm</span><span>${midCount(r)} ✗</span>`}</div>
+    <div class="exp"></div></div>`; }).join('')}`;
+  $$('.hist').forEach(card => card.onclick = ev => {
+    if (ev.target.closest('.exp')) return; const ex = $('.exp', card);
+    if (ex.innerHTML) { ex.innerHTML = ''; return; }
+    const e = store.get('history', []).find(x => x.id === card.dataset.id); if (e) (e.mode === 'writing' ? renderWriting : renderFeedback)(ex, e);
+  });
+};
+
+V.settings = () => {
+  view().innerHTML = `<div class="card"><h2>Gemini API key</h2>
+    <p class="small">Needed for AI feedback and generated exercises. Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. It is stored only on this device.</p>
+    <input type="password" id="k" placeholder="Paste your key" value="${esc(store.get('apiKey', ''))}" autocomplete="off">
+    <label class="lbl">Model</label><input type="text" id="m" value="${esc(store.get('model', 'gemini-flash-latest'))}">
+    <p class="muted small">“gemini-flash-latest” always points to Google's current Flash model. Change it only if Google retires the name.</p>
+    <div class="row"><button class="btn primary" id="ks">Save</button><button class="btn" id="kt">Test key</button></div></div>
+  <div class="card"><h2>Pronunciation voice</h2><p class="muted small">Used by the 🔊 buttons. It is your phone's built-in voice, so it is free and needs no key.</p>
+    <select id="vo"><option value="en-GB">British English</option><option value="en-US">American English</option><option value="en-IN">Indian English</option></select>
+    <div class="row" style="margin-top:8px"><button class="btn" id="vt">🔊 Test: heteroskedasticity</button></div></div>
+  <div class="card"><h2>Privacy</h2><p class="small">On Google's free tier, what you send (your recordings and notes) may be used by Google to improve its products. Avoid recording confidential material. Everything else stays in this phone's browser.</p></div>
+  <div class="card"><h2>Data</h2><p class="muted small">${store.get('history', []).length} feedback sessions · ${topics().length} topics</p>
+    <div class="row"><button class="btn danger" id="ch">Clear feedback history</button></div></div>
+  <p class="muted small" style="text-align:center">Articulate · Phase 1.1</p>`;
+  const save = () => { store.set('apiKey', $('#k').value.trim()); store.set('model', $('#m').value.trim() || 'gemini-flash-latest'); };
+  $('#ks').onclick = () => { save(); toast('Saved'); };
+  $('#vo').value = store.get('voice', 'en-GB'); $('#vo').onchange = e => store.set('voice', e.target.value);
+  $('#vt').onclick = () => speak('heteroskedasticity', 0.75);
+  $('#kt').onclick = e => { save(); busy(e.target, 'Testing…', async () => { const r = await gemini([{ text: 'Reply with the single word: ready' }], { json: false, temperature: 0 }); toast('Key works. Gemini says: ' + r.slice(0, 40)); }); };
+  $('#ch').onclick = () => { if (confirm('Delete all feedback history?')) { store.set('history', []); toast('Cleared'); V.settings(); } };
+};
+
+/* ---------- router ---------- */
+function updateChip() {
+  const t = activeTopic(), c = $('#topicChip');
+  c.hidden = !t; if (t) c.textContent = t.name;
+}
+function route() {
+  cleanupFns.forEach(f => { try { f(); } catch (e) {} }); cleanupFns = [];
+  let v = (location.hash || '#home').slice(1); if (!V[v]) v = 'home';
+  $('#title').textContent = TITLES[v];
+  $('#backBtn').hidden = TAB_VIEWS.includes(v);
+  $$('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.go === v || (v === 'prompter' && b.dataset.go === 'script')));
+  V[v](); updateChip(); window.scrollTo(0, 0);
+}
+$$('nav.tabs button').forEach(b => b.onclick = () => { location.hash = '#' + b.dataset.go; });
+$('#backBtn').onclick = () => { history.length > 1 ? history.back() : (location.hash = '#home'); };
+$('#topicChip').onclick = () => { location.hash = '#topics'; };
+window.addEventListener('hashchange', route);
+route();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

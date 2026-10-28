@@ -1,0 +1,16 @@
+{
+  "name": "Articulate — speaking practice",
+  "short_name": "Articulate",
+  "description": "Articulation, presentation and viva practice built on your economics coursework.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f2ec",
+  "theme_color": "#0f6e64",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
