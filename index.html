@@ -119,7 +119,7 @@ a{color:var(--accent)}
 <nav class="tabs">
   <button data-go="home"><span>⌂</span>Home</button>
   <button data-go="script"><span>¶</span>Script</button>
-  <button data-go="viva"><span>?</span>Viva</button>
+  <button data-go="talk"><span>🎙</span>Speak</button>
   <button data-go="history"><span>☰</span>Feedback</button>
   <button data-go="settings"><span>⚙</span>Settings</button>
 </nav>
@@ -267,16 +267,17 @@ async function wavBase64(blob) {
 }
 
 /* ---------- feedback ---------- */
-const MODE_LABEL = { twister: 'Tongue twister', read: 'Read-aloud', script: 'Scripted presentation', viva: 'Viva answer' };
+const MODE_LABEL = { twister: 'Tongue twister', read: 'Read-aloud', script: 'Scripted presentation', viva: 'Viva answer', talk: 'Free talk on a topic' };
 function feedbackPrompt(ctx, dur) {
   const content = {
     twister: 'which sounds or words were unclear or rushed (name them) and whether he kept the same clarity at speed',
     read: 'accuracy against the text: skipped, added or misread words, mispronounced or wrongly stressed technical terms',
     script: 'accuracy against the script (skipped or changed parts), and whether the narrative was easy for an audience to follow',
+    talk: 'whether the explanation is correct and easy to follow, how well it was structured (clear opening, logical order, conclusion), and what was missing',
     viva: 'whether the answer is correct, complete and well-structured as economics, judged as a viva examiner would, and what a top answer would add'
   }[ctx.mode];
   return `Analyse this recording of a ${MODE_LABEL[ctx.mode]} practice. It lasted about ${Math.round(dur)} seconds.
-${ctx.expected ? 'He was delivering this text:\n"""' + ctx.expected.slice(0, 8000) + '"""\n' : ''}${ctx.question ? 'The examiner question was: "' + ctx.question + '"\n' : ''}${ctx.mode === 'viva' ? topicContext() : ''}
+${ctx.expected ? 'He was delivering this text:\n"""' + ctx.expected.slice(0, 8000) + '"""\n' : ''}${ctx.question ? 'The examiner question was: "' + ctx.question + '"\n' : ''}${ctx.prompt ? 'He was asked to speak on: "' + ctx.prompt + '"\n' : ''}${ctx.mode === 'viva' || ctx.mode === 'talk' ? topicContext() : ''}
 Return JSON with exactly these keys:
 "transcript": verbatim transcript including fillers (um, uh, like, so, basically, you know) and restarts. Insert [•] wherever he paused between thought groups (a natural pause that helps the listener) and [✗] wherever he paused, hesitated or restarted in the middle of a phrase, breaking its meaning.
 "mid_phrase_pauses": array of objects {"quote": "the few words around the break, with [✗] where it happened", "fix": "where the pause should have gone instead"}. Empty array if none.
@@ -371,7 +372,9 @@ function mountRecorder(host, ctxFn, hooks = {}) {
       <button class="btn primary rec-btn">● Record</button>
       <span class="rec-time">0:00</span>
       <label class="small muted"><input type="checkbox" class="cam" ${store.get('camera', false) ? 'checked' : ''}> camera</label>
+      <button class="btn up-btn">⬆ Upload</button><input type="file" class="up-in" accept="audio/*,video/*" hidden>
     </div>
+    <p class="muted small" style="margin:8px 0 0">Record here, or upload a video or voice note you recorded earlier (up to 5 minutes).</p>
     <video class="preview" playsinline muted hidden></video>
     <div class="out"></div>
   </div><div class="fb"></div>`;
@@ -402,13 +405,28 @@ function mountRecorder(host, ctxFn, hooks = {}) {
     stopTracks(); btn.textContent = '● Record again'; btn.classList.remove('live');
     hooks.onStop && hooks.onStop();
     markPractice();
+    showResult(aBlob, vBlob, dur, false);
+  }
+  function showResult(aBlob, vBlob, dur, uploaded) {
+    fb.innerHTML = '';
     const media = vBlob ? `<video class="play" controls playsinline src="${URL.createObjectURL(vBlob)}"></video>` : `<audio controls src="${URL.createObjectURL(aBlob)}"></audio>`;
-    out.innerHTML = media + `<div class="row" style="margin-top:10px"><button class="btn primary get-fb">Get coach feedback</button>${vBlob ? '<a class="btn" download="practice.webm" href="' + URL.createObjectURL(vBlob) + '">Save video</a>' : ''}</div>
+    out.innerHTML = media + `<div class="row" style="margin-top:10px"><button class="btn primary get-fb">Get coach feedback</button>${vBlob && !uploaded ? '<a class="btn" download="practice.webm" href="' + URL.createObjectURL(vBlob) + '">Save video</a>' : ''}</div>
       <p class="muted small" style="margin-top:8px">Listen back once before reading the feedback — notice the stops yourself first.</p>`;
     if (dur < 3) { $('.get-fb', out).disabled = true; $('.get-fb', out).textContent = 'Too short for feedback'; }
     $('.get-fb', out).onclick = e => busy(e.target, 'Listening…', async () => { const entry = await analyse(aBlob, dur, ctxFn()); renderFeedback(fb, entry); fb.scrollIntoView({ behavior: 'smooth' }); });
   }
   btn.onclick = () => live ? stop() : start();
+  $('.up-btn', host).onclick = () => { if (!live) $('.up-in', host).click(); };
+  $('.up-in', host).onchange = async e => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    if (f.size > 250 * 1024 * 1024) return toast('That file is too large. Trim it to under 5 minutes.', true);
+    const isVideo = f.type.startsWith('video');
+    const el = document.createElement(isVideo ? 'video' : 'audio'); el.preload = 'metadata'; el.src = URL.createObjectURL(f);
+    const dur = await new Promise(ok => { el.onloadedmetadata = () => ok(el.duration); el.onerror = () => ok(NaN); setTimeout(() => ok(NaN), 8000); });
+    if (!isFinite(dur)) return toast('Could not read that file. Try an MP4, M4A, MP3 or WebM.', true);
+    if (dur > MAX + 5) return toast('That recording is ' + fmt(dur) + '. Keep uploads under 5 minutes.', true);
+    time.textContent = fmt(dur); showResult(f, isVideo ? f : null, dur, true);
+  };
   $('.cam', host).onchange = e => store.set('camera', e.target.checked);
   onCleanup(() => { if (live) { live = false; clearInterval(tick); recs.forEach(r => { try { r.stop(); } catch (e) {} }); } stopTracks(); });
   return { start, stop, get live() { return live; } };
@@ -475,8 +493,8 @@ const TWISTERS = [
 const TEMPO = { slow: 'Exaggerate every consonant. Over-move your lips and jaw. Accuracy only.', normal: 'Natural speaking speed. Every sound still crisp.', fast: 'As fast as you can while staying 100% clear. If one sound slips, drop back a gear.' };
 
 /* ---------- views ---------- */
-const TITLES = { learn: 'Explain a concept', write: 'Writing task', home: 'Articulate', warmup: 'Warm-up', twisters: 'Articulation', read: 'Read aloud', script: 'Script Studio', prompter: 'Teleprompter', viva: 'Viva drill', topics: 'Course topics', history: 'Feedback', settings: 'Settings' };
-const TAB_VIEWS = ['home', 'script', 'viva', 'history', 'settings'];
+const TITLES = { talk: 'Speak', learn: 'Explain a concept', write: 'Writing task', home: 'Articulate', warmup: 'Warm-up', twisters: 'Articulation', read: 'Read aloud', script: 'Script Studio', prompter: 'Teleprompter', viva: 'Viva drill', topics: 'Course topics', history: 'Feedback', settings: 'Settings' };
+const TAB_VIEWS = ['home', 'talk', 'script', 'history', 'settings'];
 const V = {};
 const view = () => $('#view');
 
@@ -677,6 +695,23 @@ V.prompter = () => {
     { onStart: () => { i = 0; draw(); schedule(); }, onStop: stopAuto });
   onCleanup(() => { stopAuto(); try { lock && lock.release(); } catch (e) {} });
   draw();
+};
+
+V.talk = () => {
+  let pr = store.get('talkPrompt', '');
+  view().innerHTML = `<div class="card"><h2>Speak on a topic</h2>
+    <p class="muted small">Your main place to record or upload any talk. Get a prompt from your topic or type your own, then record (or upload a video) and get coach feedback. Other recorders sit inside Articulation, Read aloud, the Teleprompter and Viva drill.</p>
+    <textarea id="tp" style="min-height:80px" placeholder="What are you speaking about? e.g. Explain why remittances matter for Bangladesh's reserves">${esc(pr)}</textarea>
+    <div class="row" style="margin-top:8px"><button class="btn" id="tpg">Suggest a prompt from my topic</button>
+      <select id="tpl" style="width:auto"><option value="60">1 minute</option><option value="120" selected>2 minutes</option><option value="180">3 minutes</option></select></div>
+    <p class="muted small" style="margin-top:8px">Plan first: one-sentence point → 2–3 supporting steps → one-sentence close. Pause between ideas, not inside them.</p></div>
+  <div id="tprec"></div>`;
+  const ta = $('#tp'); ta.oninput = () => { pr = ta.value; store.set('talkPrompt', pr); };
+  $('#tpg').onclick = e => { if (!needTopic()) return; busy(e.target, 'Thinking…', async () => {
+    const r = await gemini([{ text: topicContext() + `\nGive ONE speaking prompt for a ${Math.round(+$('#tpl').value / 60)}-minute impromptu talk on this topic, the kind asked in a seminar or presentation Q&A. Return {"prompt":"..."}` }], { temperature: 0.9 });
+    if (!r.prompt) throw new Error('No prompt came back. Try again.'); pr = String(r.prompt); ta.value = pr; store.set('talkPrompt', pr);
+  }); };
+  mountRecorder($('#tprec'), () => ({ mode: 'talk', prompt: ta.value.trim(), title: 'Talk: ' + (ta.value.trim().slice(0, 50) || 'free talk') }));
 };
 
 V.viva = () => {

@@ -1,5 +1,5 @@
 // Keeps the app working offline. Bump VERSION whenever you upload new files.
-const VERSION = 'articulate-v2';
+const VERSION = 'articulate-v3';
 const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
